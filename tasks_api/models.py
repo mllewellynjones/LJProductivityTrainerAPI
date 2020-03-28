@@ -16,7 +16,7 @@ class Task(models.Model):
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     task_description = models.CharField(max_length=120)
     task_created_datetime = models.DateTimeField(auto_now_add=True)
-    task_due_datetime = models.DateTimeField(default=None)
+    task_due_datetime = models.DateTimeField(blank=True, null=True)
     task_status = models.CharField(max_length=3, choices=STATUS_OPTIONS, default=ACTIVE)
 
     def __str__(self):
