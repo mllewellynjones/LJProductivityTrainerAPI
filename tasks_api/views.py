@@ -1,6 +1,7 @@
 from django.db import IntegrityError
 from rest_framework import viewsets, status
 from rest_framework.authentication import TokenAuthentication
+from rest_framework.authtoken.models import Token
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from .models import Task
@@ -16,11 +17,14 @@ class UserViewSet(viewsets.ModelViewSet):
     def create(self, request):
         username = request.data['username']
         password = request.data['password']
+
         try:
             user = User.objects.create_user(username=username, password=password)
-            serializer = UserSerializer(user, many=False)
+            Token.objects.create(user=user)
+            serializer = self.serializer_class(user, many=False)
             response = {'message': 'User created successfully', 'data': serializer.data}
             return Response(response, status=status.HTTP_200_OK)
+
         except IntegrityError:
             response = {'message': 'User already exists'}
             return Response(response, status=status.HTTP_400_BAD_REQUEST)
@@ -42,5 +46,5 @@ class TaskViewSet(viewsets.ModelViewSet):
         user = self.request.user
         task = Task.objects.create(user=user, task_description=task_description, task_status=task_status)
         serializer = TaskSerializer(task, many=False)
-        response = {'message': 'Task created', 'result': serializer.data}
+        response = {'message': 'Task created successfully', 'result': serializer.data}
         return Response(response, status=status.HTTP_200_OK)
